@@ -1,0 +1,177 @@
+---
+description: Project context and coding rules for the Arthritis Support App mobile MVP
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Arthritis Support App - Cursor Rules
+
+This project is a mobile-first Arthritis Support App MVP, initially for one patient: the user's mom.
+
+Goal: help her understand pain patterns and make better daily decisions with minimal effort.
+
+The app should focus on:
+
+- fast daily logging
+- joint symptom tracking
+- simple timeline visibility
+- lightweight, rule-based insights
+- gentle non-medical nudges
+
+Do not build a generic medical platform yet.
+
+## Product Rules
+
+- Single-patient MVP first.
+- Everything should be usable in under 30 seconds.
+- Keep screens simple and calm.
+- Avoid over-engineering.
+- No machine learning in the MVP.
+- No complex auth unless explicitly requested.
+- No doctor dashboard unless explicitly requested.
+- No medical diagnosis or medication instructions.
+
+## Tech Direction
+
+- Frontend: Expo, React Native, TypeScript.
+- Backend direction: FastAPI, PostgreSQL, REST API.
+- Use mock services when backend is not available.
+- Keep API functions isolated under `services/`.
+
+## Suggested Frontend Structure
+
+```txt
+src/
+  screens/
+  components/
+    layout/
+    ui/
+    checkin/
+    timeline/
+    insights/
+  services/
+  hooks/
+  types/
+  constants/
+  utils/
+```
+
+## Core Screens
+
+- HomeScreen: quick entry point with warm greeting and “Start check-in”.
+- CheckInScreen: pain, stiffness, energy, fatigue, swelling, notes.
+- JointPickerScreen: simple joint chips first; SVG body map can come later.
+- TimelineScreen: daily history and pain trend.
+- InsightsScreen: simple explanation cards.
+
+## Core Data Types
+
+Use these concepts:
+
+- Patient
+- PatientBaseline
+- DailyCheckin
+- DailyJointSymptom
+- JointReference
+- DailyExposure
+- IngestionEvent
+- IngestionPerception
+- MedicationPlan
+- MedicationAdherenceEvent
+- WeatherObservation
+- InsightCard
+
+DailyCheckin is the central frontend object.
+
+Minimum useful check-in fields:
+
+- entryDate
+- checkinTimestamp
+- painLevel
+- stiffnessLevel
+- energyLevel
+- fatigueLevel
+- swellingPresent
+- notesText
+- jointSymptoms
+
+## API Direction
+
+Early frontend-facing endpoints:
+
+```txt
+GET    /patients
+POST   /patients
+GET    /patients/{patientId}
+PATCH  /patients/{patientId}
+
+POST   /patients/{patientId}/checkins
+GET    /patients/{patientId}/checkins
+GET    /checkins/{checkinId}
+PATCH  /checkins/{checkinId}
+
+GET    /joints
+POST   /checkins/{checkinId}/joint-symptoms
+GET    /checkins/{checkinId}/joint-symptoms
+
+GET    /patients/{patientId}/insights
+```
+
+Do not invent unrelated endpoints.
+
+## UI Style
+
+The app should feel:
+
+- warm
+- simple
+- calm
+- human
+- readable
+- supportive
+
+Avoid:
+
+- hospital dashboard feel
+- dense forms
+- tiny text
+- scary warnings
+- technical labels
+- complicated charts
+
+## Language Rules
+
+Use plain, gentle copy.
+
+Good examples:
+
+- “How do you feel today?”
+- “Pain looks higher than usual this week.”
+- “This may be related to poor sleep.”
+- “We need more days before showing stronger patterns.”
+
+Avoid:
+
+- “Causal inference”
+- “Prediction model”
+- “Clinical recommendation”
+- “Abnormal symptom event”
+
+## Medical Safety
+
+Never tell the patient to start, stop, increase, or decrease medication.
+Never diagnose.
+Never claim that a trigger caused a flare.
+Use “may be related” language.
+
+## Coding Rules
+
+- Prefer simple readable code.
+- Use TypeScript types.
+- Keep components small.
+- Prefer reusable UI components only when reuse is clear.
+- Do not add major packages without a clear reason.
+- Use mock data when backend status is unclear.
+- Do not block MVP progress on advanced features like SVG joint maps or wearables.
+
