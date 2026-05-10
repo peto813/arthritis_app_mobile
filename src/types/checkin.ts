@@ -10,6 +10,10 @@ export type CheckIn = {
   patientId: string;
   createdAt: string;
   painScore: number;
+  stiffnessLevel?: number;
+  energyLevel?: number;
+  fatigueLevel?: number;
+  swellingPresent?: boolean;
   feeling: Feeling;
   notes?: string;
   joints: JointSymptom[];

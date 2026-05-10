@@ -2,8 +2,10 @@ import type { Patient } from "@/types/patient";
 
 let currentPatient: Patient = {
   id: "patient-1",
-  firstName: "Alex",
-  lastName: "Taylor",
+  firstName: "Joely",
+  lastName: "Rodriguez",
+  dateOfBirth: "1985-05-10",
+  nickname: "Mommy",
 };
 
 export const patientStore = {

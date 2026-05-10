@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Link, Stack, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
 
 import { AppButton } from "@/components/common/AppButton";
 import { AppCard } from "@/components/common/AppCard";
@@ -30,6 +30,20 @@ export default function CheckInScreen() {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const [showSavedNotice, setShowSavedNotice] = useState(true);
 
+  function confirmCancelCheckIn() {
+    Alert.alert("Cancel check-in?", "Your current check-in will be discarded.", [
+      { text: "Keep editing", style: "cancel" },
+      {
+        text: "Cancel check-in",
+        style: "destructive",
+        onPress: () => {
+          checkInDraftStore.reset();
+          router.replace("/");
+        },
+      },
+    ]);
+  }
+
   useEffect(() => {
     checkInDraftStore.set({
       entryDate: new Date().toISOString().slice(0, 10),
@@ -54,24 +68,11 @@ export default function CheckInScreen() {
         options={{
           headerLeft: () => (
             <Pressable
-              onPress={() => {
-                if (router.canGoBack()) {
-                  router.back();
-                  return;
-                }
-                router.replace("/");
-              }}
+              onPress={confirmCancelCheckIn}
               hitSlop={10}
               style={{ paddingRight: 8, paddingVertical: 2 }}
             >
               <Ionicons name="chevron-back" size={24} color={colors.textOnPrimary} />
-            </Pressable>
-          ),
-          headerRight: () => (
-            <Pressable onPress={() => router.replace("/")} hitSlop={10} style={{ paddingVertical: 2 }}>
-              <AppText style={{ color: colors.textOnPrimary, fontWeight: "600", fontSize: 15 }}>
-                Cancel
-              </AppText>
             </Pressable>
           ),
         }}
