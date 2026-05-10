@@ -3,7 +3,7 @@ import { Link, Stack, useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable } from "react-native";
 
-import { JointBodyMap } from "@/components/checkIn/JointBodyMap";
+import { JointBodyMap } from "../../components/checkIn/JointBodyMap";
 import { JointSymptomSelector } from "@/components/checkIn/JointSymptomSelector";
 import { AppButton } from "@/components/common/AppButton";
 import { AppCard } from "@/components/common/AppCard";
@@ -13,6 +13,7 @@ import { SectionTitle } from "@/components/common/SectionTitle";
 import { jointOptions, type JointOption } from "@/constants/joints";
 import { checkInDraftStore } from "@/store/checkInDraftStore";
 import { useAppTheme } from "@/theme/AppThemeProvider";
+import { confirmCancelCheckIn } from "@/utils/confirmCancelCheckIn";
 
 export default function CheckInJointsScreen() {
   const router = useRouter();
@@ -24,6 +25,10 @@ export default function CheckInJointsScreen() {
       .map((item) => item.joint)
       .filter((jointName) => validJointOptions.has(jointName)),
   );
+
+  const handleCancelPress = () => {
+    confirmCancelCheckIn(() => router.replace("/"));
+  };
 
   function toggleJoint(joint: JointOption) {
     setSelected((prev) => {
@@ -62,6 +67,19 @@ export default function CheckInJointsScreen() {
               style={{ paddingRight: 8, paddingVertical: 2 }}
             >
               <Ionicons name="chevron-back" size={24} color={colors.textOnPrimary} />
+            </Pressable>
+          ),
+          headerRight: () => (
+            <Pressable
+              onPress={handleCancelPress}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel="Cancel check-in"
+              style={{ paddingHorizontal: 4, paddingVertical: 2, marginRight: 10 }}
+            >
+              <AppText style={{ color: colors.textOnPrimary, fontWeight: "600", fontSize: 15 }}>
+                Cancel
+              </AppText>
             </Pressable>
           ),
         }}

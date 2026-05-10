@@ -9,11 +9,16 @@ import { SectionTitle } from "@/components/common/SectionTitle";
 import { CheckInSummaryCard } from "@/components/checkIn/CheckInSummaryCard";
 import { checkInDraftStore } from "@/store/checkInDraftStore";
 import { useAppTheme } from "@/theme/AppThemeProvider";
+import { confirmCancelCheckIn } from "@/utils/confirmCancelCheckIn";
 
 export default function CheckInReviewScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
   const draft = checkInDraftStore.get();
+
+  const handleCancelPress = () => {
+    confirmCancelCheckIn(() => router.replace("/"));
+  };
 
   return (
     <Screen>
@@ -33,6 +38,19 @@ export default function CheckInReviewScreen() {
               style={{ paddingRight: 8, paddingVertical: 2 }}
             >
               <Ionicons name="chevron-back" size={24} color={colors.textOnPrimary} />
+            </Pressable>
+          ),
+          headerRight: () => (
+            <Pressable
+              onPress={handleCancelPress}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel="Cancel check-in"
+              style={{ paddingHorizontal: 4, paddingVertical: 2, marginRight: 10 }}
+            >
+              <AppText style={{ color: colors.textOnPrimary, fontWeight: "600", fontSize: 15 }}>
+                Cancel
+              </AppText>
             </Pressable>
           ),
         }}

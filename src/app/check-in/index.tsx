@@ -15,6 +15,7 @@ import { copy } from "@/constants/copy";
 import { checkInDraftStore } from "@/store/checkInDraftStore";
 import { useAppTheme } from "@/theme/AppThemeProvider";
 import type { Feeling } from "@/types/checkin";
+import { confirmCancelCheckIn } from "@/utils/confirmCancelCheckIn";
 
 export default function CheckInScreen() {
   const router = useRouter();
@@ -33,6 +34,10 @@ export default function CheckInScreen() {
   const [notesText, setNotesText] = useState(savedDraft.notesText);
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const [showSavedNotice, setShowSavedNotice] = useState(true);
+
+  const handleCancelPress = () => {
+    confirmCancelCheckIn(() => router.replace("/"));
+  };
 
   useEffect(() => {
     checkInDraftStore.set({
@@ -66,10 +71,10 @@ export default function CheckInScreen() {
         options={{
           headerLeft: () => (
             <Pressable
-              onPress={() => router.replace("/")}
+              onPress={handleCancelPress}
               hitSlop={10}
               accessibilityRole="button"
-              accessibilityLabel="Go to home screen"
+              accessibilityLabel="Cancel check-in and go to home screen"
               style={{ paddingRight: 8, paddingVertical: 2 }}
             >
               <Ionicons
@@ -77,6 +82,19 @@ export default function CheckInScreen() {
                 size={24}
                 color={colors.textOnPrimary}
               />
+            </Pressable>
+          ),
+          headerRight: () => (
+            <Pressable
+              onPress={handleCancelPress}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel="Cancel check-in"
+              style={{ paddingHorizontal: 4, paddingVertical: 2, marginRight: 10 }}
+            >
+              <AppText style={{ color: colors.textOnPrimary, fontWeight: "600", fontSize: 15 }}>
+                Cancel
+              </AppText>
             </Pressable>
           ),
         }}
