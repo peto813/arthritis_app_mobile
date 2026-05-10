@@ -61,6 +61,13 @@ export default function CheckInJointsScreen() {
               <Ionicons name="chevron-back" size={24} color={colors.textOnPrimary} />
             </Pressable>
           ),
+          headerRight: () => (
+            <Pressable onPress={() => router.replace("/")} hitSlop={10} style={{ paddingVertical: 2 }}>
+              <AppText style={{ color: colors.textOnPrimary, fontWeight: "600", fontSize: 15 }}>
+                Cancel
+              </AppText>
+            </Pressable>
+          ),
         }}
       />
       <AppText muted style={{ fontSize: 13 }}>

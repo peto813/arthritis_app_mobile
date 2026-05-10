@@ -1,4 +1,5 @@
-import { Link } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { Link, Stack, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 
@@ -16,6 +17,7 @@ import { useAppTheme } from "@/theme/AppThemeProvider";
 import type { Feeling } from "@/types/checkin";
 
 export default function CheckInScreen() {
+  const router = useRouter();
   const { colors } = useAppTheme();
   const savedDraft = checkInDraftStore.get();
   const [painLevel, setPainLevel] = useState(savedDraft.painLevel);
@@ -48,6 +50,32 @@ export default function CheckInScreen() {
 
   return (
     <Screen>
+      <Stack.Screen
+        options={{
+          headerLeft: () => (
+            <Pressable
+              onPress={() => {
+                if (router.canGoBack()) {
+                  router.back();
+                  return;
+                }
+                router.replace("/");
+              }}
+              hitSlop={10}
+              style={{ paddingRight: 8, paddingVertical: 2 }}
+            >
+              <Ionicons name="chevron-back" size={24} color={colors.textOnPrimary} />
+            </Pressable>
+          ),
+          headerRight: () => (
+            <Pressable onPress={() => router.replace("/")} hitSlop={10} style={{ paddingVertical: 2 }}>
+              <AppText style={{ color: colors.textOnPrimary, fontWeight: "600", fontSize: 15 }}>
+                Cancel
+              </AppText>
+            </Pressable>
+          ),
+        }}
+      />
       <AppText muted style={{ fontSize: 13 }}>
         Step 1 of 2
       </AppText>

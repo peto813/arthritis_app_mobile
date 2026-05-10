@@ -17,20 +17,20 @@ const hotspots: Hotspot[] = [
   { joint: "Neck", leftPct: 50.812, topPct: 18.5 },
   { joint: "Shoulders", leftPct: 39.5, topPct: 22 },
   { joint: "Shoulders", leftPct: 61.7, topPct: 22 },
-  { joint: "Elbows", leftPct: 36.5, topPct: 35.4 },
-  { joint: "Elbows", leftPct: 67.2, topPct: 35.4 },
-  { joint: "Wrists", leftPct: 32.4, topPct: 49.2 },
-  { joint: "Wrists", leftPct: 71.1, topPct: 49.2 },
-  { joint: "Hands", leftPct: 32.4, topPct: 54.1 },
-  { joint: "Hands", leftPct: 71.1, topPct: 54.1 },
-  { joint: "Hips", leftPct: 44.7, topPct: 49.2 },
-  { joint: "Hips", leftPct: 59.0, topPct: 49.2 },
-  { joint: "Knees", leftPct: 45.2, topPct: 64.7 },
-  { joint: "Knees", leftPct: 58.8, topPct: 64.7 },
-  { joint: "Ankles", leftPct: 40.9, topPct: 79.4 },
-  { joint: "Ankles", leftPct: 62.3, topPct: 79.4 },
-  { joint: "Feet", leftPct: 40.7, topPct: 86.2 },
-  { joint: "Feet", leftPct: 62.0, topPct: 86.2 },
+  { joint: "Elbows", leftPct: 35.7, topPct: 35.4 },
+  { joint: "Elbows", leftPct: 65.8, topPct: 35.4 },
+  { joint: "Wrists", leftPct: 31.7, topPct: 46 }, // left wrist
+  { joint: "Wrists", leftPct: 69.6, topPct: 46 }, // right wrist
+  { joint: "Hands", leftPct: 30.5, topPct: 51 }, // left hand
+  { joint: "Hands", leftPct: 70.7, topPct: 51 }, // right hand
+  { joint: "Hips", leftPct: 43, topPct: 46 }, // left hip
+  { joint: "Hips", leftPct: 58, topPct: 46 }, // right hip
+  { joint: "Knees", leftPct: 44, topPct: 64.7 }, // left knee
+  { joint: "Knees", leftPct: 56.5, topPct: 64.7 }, // right knee
+  { joint: "Ankles", leftPct: 56.3, topPct: 82.5 }, // left ankle
+  { joint: "Ankles", leftPct: 44, topPct: 82.5 }, // right ankle
+  { joint: "Feet", leftPct: 42.7, topPct: 89 }, // left foot
+  { joint: "Feet", leftPct: 58.0, topPct: 89 }, // right foot
 ];
 
 type JointBodyMapProps = {
