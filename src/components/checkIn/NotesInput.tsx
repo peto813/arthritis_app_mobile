@@ -13,12 +13,12 @@ export function NotesInput({ value, onChangeText }: NotesInputProps) {
 
   return (
     <View style={{ gap: 8 }}>
-      <AppText style={{ fontWeight: "600" }}>Notes</AppText>
+      <AppText style={{ fontWeight: "600" }}>Notes (optional)</AppText>
       <TextInput
         value={value}
         onChangeText={onChangeText}
         multiline
-        placeholder="Anything else you noticed today?"
+        placeholder="Anything else today? (sleep, stress, activity)"
         style={{
           borderWidth: 1,
           borderColor: colors.border,

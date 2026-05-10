@@ -5,6 +5,11 @@ import { useAppTheme } from "@/theme/AppThemeProvider";
 import type { Feeling } from "@/types/checkin";
 
 const options: Feeling[] = ["great", "okay", "low"];
+const optionEmoji: Record<Feeling, string> = {
+  great: "🙂",
+  okay: "😐",
+  low: "☹️",
+};
 
 type FeelingPickerProps = {
   value: Feeling;
@@ -28,9 +33,18 @@ export function FeelingPicker({ value, onChange }: FeelingPickerProps) {
               borderRadius: 10,
               paddingVertical: 8,
               paddingHorizontal: 12,
+              backgroundColor: option === value ? colors.primary : colors.surface,
             }}
           >
-            <AppText style={{ textTransform: "capitalize" }}>{option}</AppText>
+            <AppText
+              style={{
+                textTransform: "capitalize",
+                color: option === value ? colors.textOnPrimary : colors.textPrimary,
+                fontWeight: option === value ? "600" : "400",
+              }}
+            >
+              {optionEmoji[option]} {option}
+            </AppText>
           </Pressable>
         ))}
       </View>

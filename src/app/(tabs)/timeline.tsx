@@ -1,7 +1,7 @@
 import { Screen } from "@/components/common/Screen";
 import { SectionTitle } from "@/components/common/SectionTitle";
-import { TimelineList } from "@/components/timeline/TimelineList";
 import { PainTrendCard } from "@/components/timeline/PainTrendCard";
+import { TimelineList } from "@/components/timeline/TimelineList";
 import { copy } from "@/constants/copy";
 import { useTimeline } from "@/hooks/useTimeline";
 

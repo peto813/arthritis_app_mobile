@@ -2,17 +2,29 @@ import type { Feeling } from "@/types/checkin";
 import type { JointSymptom } from "@/types/joint";
 
 export type CheckInDraft = {
-  painScore: number;
+  entryDate: string;
+  checkinTimestamp: string;
+  painLevel: number;
+  stiffnessLevel: number;
+  energyLevel: number;
+  fatigueLevel: number;
+  swellingPresent: boolean;
   feeling: Feeling;
-  notes: string;
-  joints: JointSymptom[];
+  notesText: string;
+  jointSymptoms: JointSymptom[];
 };
 
 let draftState: CheckInDraft = {
-  painScore: 5,
+  entryDate: new Date().toISOString().slice(0, 10),
+  checkinTimestamp: new Date().toISOString(),
+  painLevel: 5,
+  stiffnessLevel: 5,
+  energyLevel: 5,
+  fatigueLevel: 5,
+  swellingPresent: false,
   feeling: "okay",
-  notes: "",
-  joints: [],
+  notesText: "",
+  jointSymptoms: [],
 };
 
 export const checkInDraftStore = {
@@ -24,10 +36,16 @@ export const checkInDraftStore = {
   },
   reset() {
     draftState = {
-      painScore: 5,
+      entryDate: new Date().toISOString().slice(0, 10),
+      checkinTimestamp: new Date().toISOString(),
+      painLevel: 5,
+      stiffnessLevel: 5,
+      energyLevel: 5,
+      fatigueLevel: 5,
+      swellingPresent: false,
       feeling: "okay",
-      notes: "",
-      joints: [],
+      notesText: "",
+      jointSymptoms: [],
     };
   },
 };

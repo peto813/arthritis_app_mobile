@@ -12,10 +12,16 @@ type CheckInContextValue = {
 };
 
 const initialDraft: CheckInDraft = {
-  painScore: 5,
+  entryDate: new Date().toISOString().slice(0, 10),
+  checkinTimestamp: new Date().toISOString(),
+  painLevel: 5,
+  stiffnessLevel: 5,
+  energyLevel: 5,
+  fatigueLevel: 5,
+  swellingPresent: false,
   feeling: "okay",
-  notes: "",
-  joints: [],
+  notesText: "",
+  jointSymptoms: [],
 };
 
 const CheckInContext = createContext<CheckInContextValue | null>(null);

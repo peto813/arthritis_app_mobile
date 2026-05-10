@@ -9,7 +9,10 @@ type JointSymptomSelectorProps = {
   onToggle?: (joint: JointOption) => void;
 };
 
-export function JointSymptomSelector({ selected, onToggle }: JointSymptomSelectorProps) {
+export function JointSymptomSelector({
+  selected,
+  onToggle,
+}: JointSymptomSelectorProps) {
   const { colors } = useAppTheme();
 
   return (
