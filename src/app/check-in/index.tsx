@@ -1,16 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Link, Stack, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 
+import { FeelingPicker } from "@/components/checkIn/FeelingPicker";
+import { NotesInput } from "@/components/checkIn/NotesInput";
+import { PainSlider } from "@/components/checkIn/PainSlider";
 import { AppButton } from "@/components/common/AppButton";
 import { AppCard } from "@/components/common/AppCard";
 import { AppText } from "@/components/common/AppText";
 import { Screen } from "@/components/common/Screen";
 import { SectionTitle } from "@/components/common/SectionTitle";
-import { FeelingPicker } from "@/components/checkIn/FeelingPicker";
-import { NotesInput } from "@/components/checkIn/NotesInput";
-import { PainSlider } from "@/components/checkIn/PainSlider";
 import { copy } from "@/constants/copy";
 import { checkInDraftStore } from "@/store/checkInDraftStore";
 import { useAppTheme } from "@/theme/AppThemeProvider";
@@ -21,28 +21,18 @@ export default function CheckInScreen() {
   const { colors } = useAppTheme();
   const savedDraft = checkInDraftStore.get();
   const [painLevel, setPainLevel] = useState(savedDraft.painLevel);
-  const [stiffnessLevel, setStiffnessLevel] = useState(savedDraft.stiffnessLevel);
+  const [stiffnessLevel, setStiffnessLevel] = useState(
+    savedDraft.stiffnessLevel,
+  );
   const [energyLevel, setEnergyLevel] = useState(savedDraft.energyLevel);
   const [fatigueLevel, setFatigueLevel] = useState(savedDraft.fatigueLevel);
-  const [swellingPresent, setSwellingPresent] = useState(savedDraft.swellingPresent);
+  const [swellingPresent, setSwellingPresent] = useState(
+    savedDraft.swellingPresent,
+  );
   const [feeling, setFeeling] = useState<Feeling>(savedDraft.feeling);
   const [notesText, setNotesText] = useState(savedDraft.notesText);
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const [showSavedNotice, setShowSavedNotice] = useState(true);
-
-  function confirmCancelCheckIn() {
-    Alert.alert("Cancel check-in?", "Your current check-in will be discarded.", [
-      { text: "Keep editing", style: "cancel" },
-      {
-        text: "Cancel check-in",
-        style: "destructive",
-        onPress: () => {
-          checkInDraftStore.reset();
-          router.replace("/");
-        },
-      },
-    ]);
-  }
 
   useEffect(() => {
     checkInDraftStore.set({
@@ -60,7 +50,15 @@ export default function CheckInScreen() {
     setShowSavedNotice(true);
     const timer = setTimeout(() => setShowSavedNotice(false), 2500);
     return () => clearTimeout(timer);
-  }, [painLevel, stiffnessLevel, energyLevel, fatigueLevel, swellingPresent, feeling, notesText]);
+  }, [
+    painLevel,
+    stiffnessLevel,
+    energyLevel,
+    fatigueLevel,
+    swellingPresent,
+    feeling,
+    notesText,
+  ]);
 
   return (
     <Screen>
@@ -68,11 +66,17 @@ export default function CheckInScreen() {
         options={{
           headerLeft: () => (
             <Pressable
-              onPress={confirmCancelCheckIn}
+              onPress={() => router.replace("/")}
               hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel="Go to home screen"
               style={{ paddingRight: 8, paddingVertical: 2 }}
             >
-              <Ionicons name="chevron-back" size={24} color={colors.textOnPrimary} />
+              <Ionicons
+                name="chevron-back"
+                size={24}
+                color={colors.textOnPrimary}
+              />
             </Pressable>
           ),
         }}
@@ -80,9 +84,16 @@ export default function CheckInScreen() {
       <AppText muted style={{ fontSize: 13 }}>
         Step 1 of 2
       </AppText>
-      <SectionTitle title={copy.checkInTitle} subtitle="Capture how you feel today." />
+      <SectionTitle
+        title={copy.checkInTitle}
+        subtitle="Capture how you feel today."
+      />
       <AppCard style={{ gap: 10, padding: 14 }}>
-        <PainSlider value={painLevel} onChange={setPainLevel} showScaleNumbers={false} />
+        <PainSlider
+          value={painLevel}
+          onChange={setPainLevel}
+          showScaleNumbers={false}
+        />
         <PainSlider
           label="Energy"
           minLabel="Very low"
@@ -93,7 +104,12 @@ export default function CheckInScreen() {
         />
         <Pressable
           onPress={() => setShowMoreDetails((prev) => !prev)}
-          style={{ alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 6 }}
+          style={{
+            alignSelf: "flex-start",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 6,
+          }}
         >
           <AppText style={{ color: colors.primaryDark, fontWeight: "600" }}>
             {showMoreDetails ? "More details" : "More details"}
@@ -143,7 +159,9 @@ export default function CheckInScreen() {
                 >
                   <AppText
                     style={{
-                      color: selected ? colors.textOnPrimary : colors.textPrimary,
+                      color: selected
+                        ? colors.textOnPrimary
+                        : colors.textPrimary,
                       fontWeight: selected ? "600" : "400",
                     }}
                   >

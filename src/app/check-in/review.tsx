@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
-import { Alert, Pressable } from "react-native";
+import { Pressable } from "react-native";
 
 import { AppCard } from "@/components/common/AppCard";
 import { AppText } from "@/components/common/AppText";
@@ -15,20 +15,6 @@ export default function CheckInReviewScreen() {
   const { colors } = useAppTheme();
   const draft = checkInDraftStore.get();
 
-  function confirmCancelCheckIn() {
-    Alert.alert("Cancel check-in?", "Your current check-in will be discarded.", [
-      { text: "Keep editing", style: "cancel" },
-      {
-        text: "Cancel check-in",
-        style: "destructive",
-        onPress: () => {
-          checkInDraftStore.reset();
-          router.replace("/");
-        },
-      },
-    ]);
-  }
-
   return (
     <Screen>
       <Stack.Screen
@@ -36,7 +22,13 @@ export default function CheckInReviewScreen() {
           headerBackVisible: false,
           headerLeft: () => (
             <Pressable
-              onPress={confirmCancelCheckIn}
+              onPress={() => {
+                if (router.canGoBack()) {
+                  router.back();
+                  return;
+                }
+                router.replace("/check-in/joints");
+              }}
               hitSlop={10}
               style={{ paddingRight: 8, paddingVertical: 2 }}
             >

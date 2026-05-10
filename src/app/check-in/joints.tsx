@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Link, Stack, useRouter } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable } from "react-native";
+import { Pressable } from "react-native";
 
 import { JointBodyMap } from "@/components/checkIn/JointBodyMap";
 import { JointSymptomSelector } from "@/components/checkIn/JointSymptomSelector";
@@ -10,7 +10,7 @@ import { AppCard } from "@/components/common/AppCard";
 import { AppText } from "@/components/common/AppText";
 import { Screen } from "@/components/common/Screen";
 import { SectionTitle } from "@/components/common/SectionTitle";
-import type { JointOption } from "@/constants/joints";
+import { jointOptions, type JointOption } from "@/constants/joints";
 import { checkInDraftStore } from "@/store/checkInDraftStore";
 import { useAppTheme } from "@/theme/AppThemeProvider";
 
@@ -18,23 +18,12 @@ export default function CheckInJointsScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
   const draft = checkInDraftStore.get();
+  const validJointOptions = new Set<string>(jointOptions);
   const [selected, setSelected] = useState<string[]>(
-    draft.jointSymptoms.map((item) => item.joint),
+    draft.jointSymptoms
+      .map((item) => item.joint)
+      .filter((jointName) => validJointOptions.has(jointName)),
   );
-
-  function confirmCancelCheckIn() {
-    Alert.alert("Cancel check-in?", "Your current check-in will be discarded.", [
-      { text: "Keep editing", style: "cancel" },
-      {
-        text: "Cancel check-in",
-        style: "destructive",
-        onPress: () => {
-          checkInDraftStore.reset();
-          router.replace("/");
-        },
-      },
-    ]);
-  }
 
   function toggleJoint(joint: JointOption) {
     setSelected((prev) => {
@@ -62,7 +51,13 @@ export default function CheckInJointsScreen() {
           headerBackVisible: false,
           headerLeft: () => (
             <Pressable
-              onPress={confirmCancelCheckIn}
+              onPress={() => {
+                if (router.canGoBack()) {
+                  router.back();
+                  return;
+                }
+                router.replace("/check-in");
+              }}
               hitSlop={10}
               style={{ paddingRight: 8, paddingVertical: 2 }}
             >

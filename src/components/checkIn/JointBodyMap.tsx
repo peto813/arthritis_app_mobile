@@ -15,22 +15,22 @@ const BODY_MAP_IMAGE = require("../../../assets/images/body-map-front-dots.png")
 
 const hotspots: Hotspot[] = [
   { joint: "Neck", leftPct: 50.812, topPct: 18.5 },
-  { joint: "Shoulders", leftPct: 39.5, topPct: 22 },
-  { joint: "Shoulders", leftPct: 61.7, topPct: 22 },
-  { joint: "Elbows", leftPct: 35.7, topPct: 35.4 },
-  { joint: "Elbows", leftPct: 65.8, topPct: 35.4 },
-  { joint: "Wrists", leftPct: 31.7, topPct: 46 }, // left wrist
-  { joint: "Wrists", leftPct: 69.6, topPct: 46 }, // right wrist
-  { joint: "Hands", leftPct: 30.5, topPct: 51 }, // left hand
-  { joint: "Hands", leftPct: 70.7, topPct: 51 }, // right hand
-  { joint: "Hips", leftPct: 43, topPct: 46 }, // left hip
-  { joint: "Hips", leftPct: 58, topPct: 46 }, // right hip
-  { joint: "Knees", leftPct: 44, topPct: 64.7 }, // left knee
-  { joint: "Knees", leftPct: 56.5, topPct: 64.7 }, // right knee
-  { joint: "Ankles", leftPct: 56.3, topPct: 82.5 }, // left ankle
-  { joint: "Ankles", leftPct: 44, topPct: 82.5 }, // right ankle
-  { joint: "Feet", leftPct: 42.7, topPct: 89 }, // left foot
-  { joint: "Feet", leftPct: 58.0, topPct: 89 }, // right foot
+  { joint: "Left Shoulder", leftPct: 39.5, topPct: 22 },
+  { joint: "Right Shoulder", leftPct: 61.7, topPct: 22 },
+  { joint: "Left Elbow", leftPct: 35.7, topPct: 35.4 },
+  { joint: "Right Elbow", leftPct: 65.8, topPct: 35.4 },
+  { joint: "Left Wrist", leftPct: 31.7, topPct: 46 },
+  { joint: "Right Wrist", leftPct: 69.6, topPct: 46 },
+  { joint: "Left Hand", leftPct: 30.5, topPct: 51 },
+  { joint: "Right Hand", leftPct: 70.7, topPct: 51 },
+  { joint: "Left Hip", leftPct: 43, topPct: 46 },
+  { joint: "Right Hip", leftPct: 58, topPct: 46 },
+  { joint: "Left Knee", leftPct: 44, topPct: 64.7 },
+  { joint: "Right Knee", leftPct: 56.5, topPct: 64.7 },
+  { joint: "Left Ankle", leftPct: 56.3, topPct: 82.5 },
+  { joint: "Right Ankle", leftPct: 44, topPct: 82.5 },
+  { joint: "Left Foot", leftPct: 42.7, topPct: 89 },
+  { joint: "Right Foot", leftPct: 58.0, topPct: 89 },
 ];
 
 type JointBodyMapProps = {
@@ -125,13 +125,13 @@ export function JointBodyMap({ selected, onToggle }: JointBodyMapProps) {
                       width: dotSize,
                       height: dotSize,
                       borderRadius: dotSize / 2,
-                      borderWidth: 1.5,
+                      borderWidth: 2.5,
                       borderColor: isSelected
                         ? colors.primaryDark
-                        : colors.border,
+                        : colors.textSecondary,
                       backgroundColor: isSelected
                         ? colors.primary
-                        : "rgba(255,255,255,0.72)",
+                        : "rgba(255,255,255,0.88)",
                     }}
                   />
                 </Animated.View>
