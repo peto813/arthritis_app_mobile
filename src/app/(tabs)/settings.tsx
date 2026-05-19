@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pressable, View } from "react-native";
 
 import { PainSlider } from "@/components/checkIn/PainSlider";
@@ -9,6 +9,7 @@ import { Screen } from "@/components/common/Screen";
 import { SectionTitle } from "@/components/common/SectionTitle";
 import { copy } from "@/constants/copy";
 import { useTimeline } from "@/hooks/useTimeline";
+import { getBaseline, updateBaseline } from "@/services/baselinesApi";
 import { usePatient } from "@/hooks/usePatient";
 import { baselineStore } from "@/store/baselineStore";
 import { useAppTheme } from "@/theme/AppThemeProvider";
@@ -72,6 +73,8 @@ export default function SettingsScreen() {
   const [fatigueLevel, setFatigueLevel] = useState(existingBaseline.typicalFatigueLevel);
   const [swellingPresent, setSwellingPresent] = useState(existingBaseline.typicalSwellingPresent);
   const [savedNotice, setSavedNotice] = useState<string | null>(null);
+  const [isLoadingBaseline, setIsLoadingBaseline] = useState(true);
+  const [isSavingBaseline, setIsSavingBaseline] = useState(false);
 
   const suggestedBaseline = useMemo(
     () => calculateSuggestedBaseline(entries, existingBaseline),
@@ -87,9 +90,67 @@ export default function SettingsScreen() {
     typicalSwellingPresent: swellingPresent,
   };
 
-  function saveBaseline(next: PatientBaseline, notice: string) {
-    baselineStore.set(next);
-    setSavedNotice(notice);
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadSavedBaseline() {
+      setIsLoadingBaseline(true);
+      try {
+        const remoteBaseline = await getBaseline(patient.id);
+
+        if (!isMounted) {
+          return;
+        }
+
+        if (remoteBaseline) {
+          baselineStore.set(remoteBaseline);
+          setPainLevel(remoteBaseline.typicalPainLevel);
+          setStiffnessLevel(remoteBaseline.typicalStiffnessLevel);
+          setEnergyLevel(remoteBaseline.typicalEnergyLevel);
+          setFatigueLevel(remoteBaseline.typicalFatigueLevel);
+          setSwellingPresent(remoteBaseline.typicalSwellingPresent);
+          setSavedNotice("Loaded saved baseline.");
+        } else {
+          setSavedNotice("No saved baseline yet. You can save one now.");
+        }
+      } catch {
+        if (!isMounted) {
+          return;
+        }
+        setSavedNotice("Using local baseline. Could not load from server.");
+      } finally {
+        if (isMounted) {
+          setIsLoadingBaseline(false);
+        }
+      }
+    }
+
+    void loadSavedBaseline();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [patient.id]);
+
+  async function saveBaseline(next: PatientBaseline, notice: string) {
+    setIsSavingBaseline(true);
+    try {
+      const savedBaseline = await updateBaseline(patient.id, {
+        updatedAt: next.updatedAt,
+        typicalPainLevel: next.typicalPainLevel,
+        typicalStiffnessLevel: next.typicalStiffnessLevel,
+        typicalEnergyLevel: next.typicalEnergyLevel,
+        typicalFatigueLevel: next.typicalFatigueLevel,
+        typicalSwellingPresent: next.typicalSwellingPresent,
+      });
+      baselineStore.set(savedBaseline);
+      setSavedNotice(notice);
+    } catch {
+      baselineStore.set(next);
+      setSavedNotice("Saved locally only. Could not sync with server.");
+    } finally {
+      setIsSavingBaseline(false);
+    }
   }
 
   return (
@@ -177,8 +238,11 @@ export default function SettingsScreen() {
         </View>
 
         <AppButton
-          label="Save Baseline"
-          onPress={() => saveBaseline(baselinePreview, "Baseline saved.")}
+          label={isSavingBaseline ? "Saving..." : "Save Baseline"}
+          onPress={() => {
+            void saveBaseline(baselinePreview, "Baseline saved.");
+          }}
+          disabled={isSavingBaseline || isLoadingBaseline}
         />
         {savedNotice ? <AppText muted>{savedNotice}</AppText> : null}
       </AppCard>

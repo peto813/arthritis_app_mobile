@@ -1,6 +1,10 @@
-import { apiClient } from "@/services/apiClient";
+import { apiGet } from "@/services/apiClient";
 import type { Patient } from "@/types/patient";
 
+export function getPatients() {
+  return apiGet<Patient[]>("/patients");
+}
+
 export function getPatient(patientId: string) {
-  return apiClient<Patient>(`/patients/${patientId}`);
+  return apiGet<Patient>(`/patients/${patientId}`);
 }

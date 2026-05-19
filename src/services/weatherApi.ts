@@ -1,4 +1,4 @@
-import { apiClient } from "@/services/apiClient";
+import { apiGet } from "@/services/apiClient";
 
 type WeatherSnapshot = {
   temperatureC: number;
@@ -7,5 +7,5 @@ type WeatherSnapshot = {
 };
 
 export function getWeather(zipCode: string) {
-  return apiClient<WeatherSnapshot>(`/weather?zip=${zipCode}`);
+  return apiGet<WeatherSnapshot>("/weather", { query: { zip: zipCode } });
 }

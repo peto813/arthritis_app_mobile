@@ -8,20 +8,22 @@ import { AppText } from "./AppText";
 type AppButtonProps = {
   label: string;
   onPress?: () => void;
+  disabled?: boolean;
 };
 
-export function AppButton({ label, onPress }: AppButtonProps) {
+export function AppButton({ label, onPress, disabled = false }: AppButtonProps) {
   const { colors } = useAppTheme();
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={disabled ? undefined : onPress}
       style={{
-        backgroundColor: colors.primary,
+        backgroundColor: disabled ? colors.border : colors.primary,
         paddingVertical: spacing.md,
         paddingHorizontal: spacing.lg,
         borderRadius: 10,
         alignItems: "center",
+        opacity: disabled ? 0.7 : 1,
       }}
     >
       <AppText style={{ color: colors.textOnPrimary, fontWeight: "600" }}>{label}</AppText>

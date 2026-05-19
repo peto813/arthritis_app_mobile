@@ -1,10 +1,12 @@
-import { apiClient } from "@/services/apiClient";
-import type { CheckIn } from "@/types/checkin";
+import { apiGet, apiPost } from "@/services/apiClient";
+import type { DailyCheckin } from "@/types/checkin";
 
 export function getCheckIns(patientId: string) {
-  return apiClient<CheckIn[]>(`/patients/${patientId}/checkins`);
+  return apiGet<DailyCheckin[]>(`/patients/${patientId}/checkins`);
 }
 
-export function createCheckIn(payload: Omit<CheckIn, "id">) {
-  return apiClient<CheckIn>("/checkins", "POST", payload);
+export type CreateCheckInPayload = Omit<DailyCheckin, "id" | "patientId">;
+
+export function createCheckIn(patientId: string, payload: CreateCheckInPayload) {
+  return apiPost<DailyCheckin>(`/patients/${patientId}/checkins`, payload);
 }

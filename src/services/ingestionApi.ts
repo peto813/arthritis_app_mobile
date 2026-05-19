@@ -1,4 +1,4 @@
-import { apiClient } from "@/services/apiClient";
+import { apiPost } from "@/services/apiClient";
 
 type IngestionPayload = {
   source: string;
@@ -6,5 +6,5 @@ type IngestionPayload = {
 };
 
 export function ingestData(payload: IngestionPayload) {
-  return apiClient<{ accepted: boolean }>("/ingestion", "POST", payload);
+  return apiPost<{ accepted: boolean }>("/ingestion", payload);
 }
