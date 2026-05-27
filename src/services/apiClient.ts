@@ -2,8 +2,11 @@ const DEFAULT_API_BASE_URL = "http://localhost:3000";
 const API_BASE_URL =
   process.env["EXPO_PUBLIC_API_BASE_URL"]?.trim() || DEFAULT_API_BASE_URL;
 const API_ROUTE_PREFIX = "/v1";
-const API_AUTH_HASH_HEADER = "API_AUTH_HASH_HEADER";
-const API_AUTH_HASH_TOKEN = "mvp-user-4a2b8c1d9e0f3a7b5c6d8e2f1a0b9c8";
+const API_AUTH_HASH_HEADER = "X-Auth-Hash";
+const API_AUTH_HASH_TOKEN =
+  process.env["EXPO_PUBLIC_API_AUTH_HASH"]?.trim() ||
+  "mvp-user-4a2b8c1d9e0f3a7b5c6d8e2f1a0b9c8";
+const PUBLIC_ROUTES = new Set<string>(["/health"]);
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -39,7 +42,13 @@ export class ApiError extends Error {
 
 function normalizePath(path: string) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  if (normalizedPath.startsWith(`${API_ROUTE_PREFIX}/`) || normalizedPath === API_ROUTE_PREFIX) {
+  if (PUBLIC_ROUTES.has(normalizedPath)) {
+    return normalizedPath;
+  }
+  if (
+    normalizedPath.startsWith(`${API_ROUTE_PREFIX}/`) ||
+    normalizedPath === API_ROUTE_PREFIX
+  ) {
     return normalizedPath;
   }
   return `${API_ROUTE_PREFIX}${normalizedPath}`;

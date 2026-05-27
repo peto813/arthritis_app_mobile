@@ -1,11 +1,16 @@
-import { apiGet } from "@/services/apiClient";
+import { apiGet, apiPost } from "@/services/apiClient";
+import type {
+  ApiWeatherObservation,
+  CreateWeatherObservationPayload,
+} from "@/services/apiSchemas";
 
-type WeatherSnapshot = {
-  temperatureC: number;
-  humidity: number;
-  pressure: number;
-};
+export function getWeatherObservations(patientId: string) {
+  return apiGet<ApiWeatherObservation[]>(`/patients/${patientId}/weather`);
+}
 
-export function getWeather(zipCode: string) {
-  return apiGet<WeatherSnapshot>("/weather", { query: { zip: zipCode } });
+export function createWeatherObservation(
+  patientId: string,
+  payload: CreateWeatherObservationPayload,
+) {
+  return apiPost<ApiWeatherObservation>(`/patients/${patientId}/weather`, payload);
 }

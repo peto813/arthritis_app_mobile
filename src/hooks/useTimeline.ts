@@ -1,5 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { getCheckIns } from "@/services/checkinsApi";
+import { patientStore } from "@/store/patientStore";
 import type { CheckIn } from "@/types/checkin";
 
 const mockTimeline: CheckIn[] = [
@@ -58,6 +60,56 @@ const mockTimeline: CheckIn[] = [
 ];
 
 export function useTimeline() {
-  const entries = useMemo(() => mockTimeline, []);
-  return { entries };
+  const [entries, setEntries] = useState<CheckIn[]>(mockTimeline);
+  const [isLoading, setIsLoading] = useState(true);
+  const patient = useMemo(() => patientStore.get(), []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadCheckins() {
+      setIsLoading(true);
+      try {
+        const remoteCheckins = await getCheckIns(patient.id);
+        if (!isMounted || !remoteCheckins.length) {
+          return;
+        }
+
+        const mapped = remoteCheckins.map<CheckIn>((entry) => ({
+          id: entry.id,
+          patientId: entry.patientId,
+          createdAt: entry.checkinTimestamp,
+          painScore: entry.painLevel,
+          stiffnessLevel:
+            typeof entry.stiffnessLevel === "number" ? entry.stiffnessLevel : undefined,
+          energyLevel: typeof entry.energyLevel === "number" ? entry.energyLevel : undefined,
+          fatigueLevel:
+            typeof entry.fatigueLevel === "number" ? entry.fatigueLevel : undefined,
+          swellingPresent: entry.swellingPresent,
+          feeling: "okay",
+          notes: entry.notesText,
+          joints: [],
+        }));
+
+        setEntries(mapped);
+      } catch {
+        if (!isMounted) {
+          return;
+        }
+        setEntries(mockTimeline);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadCheckins();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [patient.id]);
+
+  return { entries, isLoading };
 }

@@ -11,7 +11,16 @@ type PainSliderProps = {
   showScaleNumbers?: boolean;
   value: number;
   onChange?: (value: number) => void;
+  disabled?: boolean;
 };
+
+function clampSliderValue(value: unknown) {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) {
+    return 0;
+  }
+  return Math.min(10, Math.max(0, Math.round(numericValue)));
+}
 
 export function PainSlider({
   label = "Pain Score",
@@ -20,20 +29,23 @@ export function PainSlider({
   showScaleNumbers = true,
   value,
   onChange,
+  disabled = false,
 }: PainSliderProps) {
   const { colors } = useAppTheme();
+  const safeValue = clampSliderValue(value);
 
   return (
     <View style={{ gap: 10 }}>
       <AppText style={{ fontWeight: "600" }}>
-        {label}: {value}
+        {label}: {safeValue}
       </AppText>
       <Slider
-        value={value}
+        value={safeValue}
         minimumValue={0}
         maximumValue={10}
         step={1}
-        onValueChange={(nextValue) => onChange?.(nextValue)}
+        disabled={disabled}
+        onValueChange={(nextValue) => onChange?.(clampSliderValue(nextValue))}
         minimumTrackTintColor={colors.primary}
         maximumTrackTintColor={colors.border}
         thumbTintColor={colors.primaryDark}
@@ -46,8 +58,9 @@ export function PainSlider({
               muted
               style={{
                 fontSize: 12,
-                fontWeight: index === value ? "700" : "400",
-                color: index === value ? colors.primaryDark : colors.textSecondary,
+                fontWeight: index === safeValue ? "700" : "400",
+                color:
+                  index === safeValue ? colors.primaryDark : colors.textSecondary,
               }}
             >
               {index}

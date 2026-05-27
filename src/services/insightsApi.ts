@@ -1,6 +1,6 @@
 import { apiGet } from "@/services/apiClient";
-import type { Insight } from "@/types/insight";
+import type { ApiInsight } from "@/services/apiSchemas";
 
 export function getInsights(patientId: string) {
-  return apiGet<Insight[]>(`/patients/${patientId}/insights`);
+  return apiGet<ApiInsight[]>(`/patients/${patientId}/insights`);
 }

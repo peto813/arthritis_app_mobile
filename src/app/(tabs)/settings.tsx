@@ -8,9 +8,10 @@ import { AppText } from "@/components/common/AppText";
 import { Screen } from "@/components/common/Screen";
 import { SectionTitle } from "@/components/common/SectionTitle";
 import { copy } from "@/constants/copy";
-import { useTimeline } from "@/hooks/useTimeline";
-import { getBaseline, updateBaseline } from "@/services/baselinesApi";
 import { usePatient } from "@/hooks/usePatient";
+import { useTimeline } from "@/hooks/useTimeline";
+import { ApiError } from "@/services/apiClient";
+import { getBaseline, updateBaseline } from "@/services/baselinesApi";
 import { baselineStore } from "@/store/baselineStore";
 import { useAppTheme } from "@/theme/AppThemeProvider";
 import type { CheckIn, PatientBaseline } from "@/types/checkin";
@@ -21,7 +22,13 @@ function toRoundedAverage(values: number[]) {
   if (!values.length) {
     return 5;
   }
-  return Math.min(10, Math.max(0, Math.round(values.reduce((sum, value) => sum + value, 0) / values.length)));
+  return Math.min(
+    10,
+    Math.max(
+      0,
+      Math.round(values.reduce((sum, value) => sum + value, 0) / values.length),
+    ),
+  );
 }
 
 function calculateSuggestedBaseline(
@@ -34,10 +41,18 @@ function calculateSuggestedBaseline(
 
   const recentEntries = entries.slice(0, 14);
   const painValues = recentEntries.map((entry) => entry.painScore);
-  const stiffnessValues = recentEntries.map((entry) => entry.stiffnessLevel ?? entry.painScore);
-  const energyValues = recentEntries.map((entry) => entry.energyLevel ?? 10 - entry.painScore);
-  const fatigueValues = recentEntries.map((entry) => entry.fatigueLevel ?? entry.painScore);
-  const swellingValues = recentEntries.map((entry) => entry.swellingPresent ?? entry.painScore >= 6);
+  const stiffnessValues = recentEntries.map(
+    (entry) => entry.stiffnessLevel ?? entry.painScore,
+  );
+  const energyValues = recentEntries.map(
+    (entry) => entry.energyLevel ?? 10 - entry.painScore,
+  );
+  const fatigueValues = recentEntries.map(
+    (entry) => entry.fatigueLevel ?? entry.painScore,
+  );
+  const swellingValues = recentEntries.map(
+    (entry) => entry.swellingPresent ?? entry.painScore >= 6,
+  );
   const swellingTrueCount = swellingValues.filter(Boolean).length;
 
   return {
@@ -68,13 +83,22 @@ export default function SettingsScreen() {
   const existingBaseline = baselineStore.get(patient.id);
 
   const [painLevel, setPainLevel] = useState(existingBaseline.typicalPainLevel);
-  const [stiffnessLevel, setStiffnessLevel] = useState(existingBaseline.typicalStiffnessLevel);
-  const [energyLevel, setEnergyLevel] = useState(existingBaseline.typicalEnergyLevel);
-  const [fatigueLevel, setFatigueLevel] = useState(existingBaseline.typicalFatigueLevel);
-  const [swellingPresent, setSwellingPresent] = useState(existingBaseline.typicalSwellingPresent);
+  const [stiffnessLevel, setStiffnessLevel] = useState(
+    existingBaseline.typicalStiffnessLevel,
+  );
+  const [energyLevel, setEnergyLevel] = useState(
+    existingBaseline.typicalEnergyLevel,
+  );
+  const [fatigueLevel, setFatigueLevel] = useState(
+    existingBaseline.typicalFatigueLevel,
+  );
+  const [swellingPresent, setSwellingPresent] = useState(
+    existingBaseline.typicalSwellingPresent,
+  );
   const [savedNotice, setSavedNotice] = useState<string | null>(null);
   const [isLoadingBaseline, setIsLoadingBaseline] = useState(true);
   const [isSavingBaseline, setIsSavingBaseline] = useState(false);
+  const [hasSavedBaseline, setHasSavedBaseline] = useState(false);
 
   const suggestedBaseline = useMemo(
     () => calculateSuggestedBaseline(entries, existingBaseline),
@@ -95,14 +119,15 @@ export default function SettingsScreen() {
 
     async function loadSavedBaseline() {
       setIsLoadingBaseline(true);
+      setHasSavedBaseline(false);
       try {
         const remoteBaseline = await getBaseline(patient.id);
 
         if (!isMounted) {
           return;
         }
-
         if (remoteBaseline) {
+          setHasSavedBaseline(true);
           baselineStore.set(remoteBaseline);
           setPainLevel(remoteBaseline.typicalPainLevel);
           setStiffnessLevel(remoteBaseline.typicalStiffnessLevel);
@@ -113,11 +138,18 @@ export default function SettingsScreen() {
         } else {
           setSavedNotice("No saved baseline yet. You can save one now.");
         }
-      } catch {
+      } catch (error) {
         if (!isMounted) {
           return;
         }
-        setSavedNotice("Using local baseline. Could not load from server.");
+        const isNotFoundError =
+          (error instanceof ApiError && error.status === 404) ||
+          (error instanceof Error && /not[\s-]?found/i.test(error.message));
+        if (isNotFoundError) {
+          setSavedNotice("No saved baseline yet. You can save one now.");
+        } else {
+          setSavedNotice("Using local baseline. Could not load from server.");
+        }
       } finally {
         if (isMounted) {
           setIsLoadingBaseline(false);
@@ -153,9 +185,15 @@ export default function SettingsScreen() {
     }
   }
 
+  const baselineInputsDisabled =
+    isSavingBaseline || isLoadingBaseline || hasSavedBaseline;
+
   return (
     <Screen>
-      <SectionTitle title={copy.settingsTitle} subtitle="Profile and app configuration." />
+      <SectionTitle
+        title={copy.settingsTitle}
+        subtitle="Profile and app configuration."
+      />
       <AppCard>
         <AppText style={{ fontWeight: "700" }}>Patient</AppText>
         <AppText>
@@ -167,7 +205,8 @@ export default function SettingsScreen() {
         <View style={{ gap: 4 }}>
           <AppText style={{ fontWeight: "700" }}>Baseline</AppText>
           <AppText muted>
-            Your baseline is your typical day. Compare daily check-ins against this reference.
+            Your baseline is your typical day. Compare daily check-ins against
+            this reference.
           </AppText>
         </View>
 
@@ -178,6 +217,7 @@ export default function SettingsScreen() {
           value={painLevel}
           onChange={setPainLevel}
           showScaleNumbers={false}
+          disabled={baselineInputsDisabled}
         />
         <PainSlider
           label="Typical stiffness"
@@ -186,6 +226,7 @@ export default function SettingsScreen() {
           value={stiffnessLevel}
           onChange={setStiffnessLevel}
           showScaleNumbers={false}
+          disabled={baselineInputsDisabled}
         />
         <PainSlider
           label="Typical energy"
@@ -194,6 +235,7 @@ export default function SettingsScreen() {
           value={energyLevel}
           onChange={setEnergyLevel}
           showScaleNumbers={false}
+          disabled={baselineInputsDisabled}
         />
         <PainSlider
           label="Typical fatigue"
@@ -202,6 +244,7 @@ export default function SettingsScreen() {
           value={fatigueLevel}
           onChange={setFatigueLevel}
           showScaleNumbers={false}
+          disabled={baselineInputsDisabled}
         />
 
         <View style={{ gap: 8 }}>
@@ -214,6 +257,7 @@ export default function SettingsScreen() {
                 <Pressable
                   key={label}
                   onPress={() => setSwellingPresent(isYes)}
+                  disabled={baselineInputsDisabled}
                   style={{
                     borderWidth: 1,
                     borderColor: selected ? colors.primary : colors.border,
@@ -221,11 +265,14 @@ export default function SettingsScreen() {
                     borderRadius: 10,
                     paddingVertical: 8,
                     paddingHorizontal: 12,
+                    opacity: baselineInputsDisabled ? 0.6 : 1,
                   }}
                 >
                   <AppText
                     style={{
-                      color: selected ? colors.textOnPrimary : colors.textPrimary,
+                      color: selected
+                        ? colors.textOnPrimary
+                        : colors.textPrimary,
                       fontWeight: selected ? "600" : "400",
                     }}
                   >
@@ -237,13 +284,15 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <AppButton
-          label={isSavingBaseline ? "Saving..." : "Save Baseline"}
-          onPress={() => {
-            void saveBaseline(baselinePreview, "Baseline saved.");
-          }}
-          disabled={isSavingBaseline || isLoadingBaseline}
-        />
+        {!hasSavedBaseline ? (
+          <AppButton
+            label={isSavingBaseline ? "Saving..." : "Save Baseline"}
+            onPress={() => {
+              void saveBaseline(baselinePreview, "Baseline saved.");
+            }}
+            disabled={baselineInputsDisabled}
+          />
+        ) : null}
         {savedNotice ? <AppText muted>{savedNotice}</AppText> : null}
       </AppCard>
 
@@ -251,14 +300,20 @@ export default function SettingsScreen() {
         <AppCard style={{ gap: 10 }}>
           <AppText style={{ fontWeight: "700" }}>Suggested baseline</AppText>
           <AppText muted>
-            Based on recent check-ins ({Math.min(entries.length, 14)} days). Review before applying.
+            Based on recent check-ins ({Math.min(entries.length, 14)} days).
+            Review before applying.
           </AppText>
           <AppText>Pain: {suggestedBaseline.typicalPainLevel}/10</AppText>
-          <AppText>Stiffness: {suggestedBaseline.typicalStiffnessLevel}/10</AppText>
+          <AppText>
+            Stiffness: {suggestedBaseline.typicalStiffnessLevel}/10
+          </AppText>
           <AppText>Energy: {suggestedBaseline.typicalEnergyLevel}/10</AppText>
           <AppText>Fatigue: {suggestedBaseline.typicalFatigueLevel}/10</AppText>
           <AppText>
-            Swelling: {suggestedBaseline.typicalSwellingPresent ? "usually present" : "usually absent"}
+            Swelling:{" "}
+            {suggestedBaseline.typicalSwellingPresent
+              ? "usually present"
+              : "usually absent"}
           </AppText>
           <AppButton
             label="Apply Suggested Baseline"
@@ -272,13 +327,16 @@ export default function SettingsScreen() {
             }}
           />
           {!baselineDiffers(suggestedBaseline, baselinePreview) ? (
-            <AppText muted>The suggested baseline already matches the current values.</AppText>
+            <AppText muted>
+              The suggested baseline already matches the current values.
+            </AppText>
           ) : null}
         </AppCard>
       ) : (
         <AppCard>
           <AppText muted>
-            Complete at least {MIN_CHECKINS_FOR_SUGGESTION} check-ins to receive a suggested baseline.
+            Complete at least {MIN_CHECKINS_FOR_SUGGESTION} check-ins to receive
+            a suggested baseline.
           </AppText>
         </AppCard>
       )}

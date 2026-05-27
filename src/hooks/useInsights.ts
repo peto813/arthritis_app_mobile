@@ -1,5 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { getInsights } from "@/services/insightsApi";
+import { patientStore } from "@/store/patientStore";
 import type { Insight } from "@/types/insight";
 
 const placeholderInsights: Insight[] = [
@@ -13,6 +15,44 @@ const placeholderInsights: Insight[] = [
 ];
 
 export function useInsights() {
-  const insights = useMemo(() => placeholderInsights, []);
-  return { insights };
+  const [insights, setInsights] = useState<Insight[]>(placeholderInsights);
+  const [isLoading, setIsLoading] = useState(true);
+  const patient = useMemo(() => patientStore.get(), []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadInsights() {
+      setIsLoading(true);
+      try {
+        const remoteInsights = await getInsights(patient.id);
+        if (!isMounted || !remoteInsights.length) {
+          return;
+        }
+        setInsights(
+          remoteInsights.map((insight) => ({
+            ...insight,
+            confidence: insight.confidence ?? 0,
+          })),
+        );
+      } catch {
+        if (!isMounted) {
+          return;
+        }
+        setInsights(placeholderInsights);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadInsights();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [patient.id]);
+
+  return { insights, isLoading };
 }
